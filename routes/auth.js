@@ -90,6 +90,27 @@ router.get(
   }
 );
 
+router.post("/regist", function (req, res, next) {
+  console.log(req.body.address);
+  if (req.body.address) {
+    db.serialize(() => {
+      db.run("INSERT OR IGNORE INTO list (username, address) VALUES (?, ?)", [
+        req.user.username,
+        req.body.address,
+      ]);
+      db.run(
+        "UPDATE list SET address = ? WHERE username=?",
+        [req.body.address, req.user.username],
+        (err) => {
+          res.redirect("/");
+        }
+      );
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
 router.get("/logout", function (req, res, next) {
   req.logout();
   res.redirect("/");
